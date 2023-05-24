@@ -59,7 +59,26 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const [error, setError] = useState({});
+  //const [errors, setErrors] = useState({});
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const handleError = error => {
+
+    console.log(error.code);
+  
+    if (error.code === "auth/email-already-in-use" || "auth/invalid-email" || "auth/user-not-found") {
+      setEmailError(error.message)
+      console.log("email", error.code);
+    }
+    else if (error.code === "auth/wrong-password") {
+      setPasswordError(error.message)
+      console.log("password", error.code);
+    }
+    else {
+      console.log("error");
+    }
+  }
 
   const [newUser, setNewUser] = useState(true);
 
@@ -101,7 +120,7 @@ const Login = () => {
           updateUserName(name);
           handleResponse(res);
         })
-        .catch(error => console.log(error))
+        .catch(error => handleError(error))
     }
 
     if (!newUser && email && password) {
@@ -109,7 +128,7 @@ const Login = () => {
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then(res => handleResponse(res))
-        .catch(error => console.log(error));
+        .catch(error => handleError(error))
     }
   }
 
@@ -173,7 +192,8 @@ const Login = () => {
             onChange={handleChange('email')}
             autoComplete="email"
             autoFocus
-            helperText={error && error.message}
+            error={emailError}
+            helperText={emailError}
           />
           <TextField
             variant="outlined"
@@ -185,7 +205,8 @@ const Login = () => {
             id="password"
             onChange={handleChange('password')}
             autoComplete="current-password"
-            helperText={error && error.message}
+            error={passwordError}
+            helperText={passwordError}
             InputProps={{
               endAdornment:
                 <InputAdornment position="end">
